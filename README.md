@@ -194,3 +194,13 @@ Com o servidor rodando, acesse:
 }
 ```
 
+## 👨‍💻 Desenvolvedores
+
+
+
+Este projeto foi desenvolvido pelos alunos:
+ 
+- **Nicolas R. Santos**
+- **Felipe Gonçalves**
+ 
+---
