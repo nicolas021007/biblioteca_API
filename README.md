@@ -1,206 +1,133 @@
+# Biblioteca API
 
+API REST para gerenciamento de uma biblioteca, desenvolvida em **Python** com **FastAPI**, seguindo os princípios de **DDD (Domain-Driven Design)**. O armazenamento dos dados é feito **em memória**, sem uso de banco de dados externo.
 
-# 📚 Biblioteca API
+## 🚀 Tecnologias
 
+- **Python 3.12**
+- **FastAPI** — framework para construção da API REST
+- **Pydantic** — validação de dados e schemas
+- **Uvicorn** — servidor ASGI
 
-API REST para gerenciamento de uma biblioteca, desenvolvida em **Python 3.12** com **FastAPI**, seguindo a arquitetura **Domain-Driven Design (DDD)**. Permite cadastrar e listar **leitores** e **livros**, com regras de negócio aplicadas diretamente no domínio.
+## 🏗️ Arquitetura
 
----
-
-## 📋 Sumário
-
-- [Sobre o Projeto](#sobre-o-projeto)
-- [Tecnologias](#tecnologias)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Regras de Negócio](#regras-de-negócio)
-- [Instalação](#instalação)
-- [Como Usar](#como-usar)
-- [Endpoints](#endpoints)
-
----
-
-## 💡 Sobre o Projeto
-
-A **Biblioteca API** é uma API RESTful que gerencia o cadastro de leitores e livros. O projeto aplica os conceitos de DDD separando claramente as camadas de **domínio**, **serviços**, **repositórios**, **schemas** e **rotas**, garantindo organização e facilidade de manutenção.
-
----
-
-## 🛠 Tecnologias
-
-| Tecnologia | Descrição |
-|---|---|
-| [Python 3.12](https://www.python.org/) | Linguagem principal |
-| [FastAPI](https://fastapi.tiangolo.com/) | Framework web para criação da API |
-| [Pydantic](https://docs.pydantic.dev/) | Validação e serialização de dados |
-| [Uvicorn](https://www.uvicorn.org/) | Servidor ASGI para rodar a aplicação |
-
----
-
-## 🗂 Estrutura do Projeto
+O projeto segue a arquitetura DDD, separado em camadas:
 
 ```
-BIBLIOTECA_API/
-│
-├── main.py                          # Ponto de entrada — instancia o FastAPI e registra os routers
-│
-├── domain/                          # Camada de Domínio (entidades e regras de negócio)
-│   ├── __init__.py
-│   ├── livro.py                     # Entidade Livro com validações e cálculo de preço final
-│   └── leitor.py                    # Value Object Leitor (dataclass imutável)
-│
-├── schemas/                         # Schemas Pydantic (contratos de entrada e saída da API)
-│   ├── __init__.py
-│   ├── livro.py                     # LivroCreate e LivroOut
-│   └── leitor.py                    # LeitorCreate e LeitorOut
-│
-├── repositories/                    # Camada de Repositório (persistência em memória)
-│   ├── __init__.py
-│   └── memory.py                    # Classe DB — armazena leitores e livros em dicionários
-│
-├── services/                        # Camada de Serviços (casos de uso / lógica de aplicação)
-│   ├── __init__.py
-│   └── biblioteca_service.py        # Funções: criar/listar leitores, criar/listar/buscar/alterar livros
-│
-├── api/
-│   └── router/
-│       ├── leitores.py              # Rotas de Leitores
-│       └── livros.py                # Rotas de Livros
-│
-├── .venv/                           # Ambiente virtual Python
-├── .gitignore
-└── README.md
+biblioteca_API/
+├── api/                  # Rotas (controllers) da API
+│   ├── leitores.py
+│   └── livros.py
+├── domain/                # Entidades de negócio e regras de domínio
+│   ├── leitor.py
+│   └── livro.py
+├── schemas/               # Schemas Pydantic (entrada/saída da API)
+│   ├── leitor.py
+│   └── livro.py
+├── services/              # Casos de uso / lógica de aplicação
+│   └── biblioteca_service.py
+├── repositories/          # Armazenamento dos dados (em memória)
+│   └── memory.py
+└── main.py                # Ponto de entrada da aplicação
 ```
 
----
+- **domain/**: contém as entidades de negócio (`Leitor`, `Livro`) e suas regras (ex: cálculo de preço final, validações).
+- **schemas/**: define o formato dos dados que entram (`*Create`) e saem (`*Out`) da API, usando Pydantic.
+- **services/**: orquestra a lógica entre rotas, entidades de domínio e repositório (criação de IDs, validações de aplicação).
+- **repositories/**: simula um banco de dados usando dicionários em memória (`DB`).
+- **api/**: define os endpoints REST, conectando rotas aos serviços.
 
-## 📐 Regras de Negócio
+## 📦 Instalação
 
-### Livro
+Clone o repositório:
 
-A entidade `Livro` aplica as seguintes validações ao ser criada:
-
-- **Preço** não pode ser negativo.
-- **Desconto percentual** deve estar entre `0` e `100`.
-- **Tipo** aceita apenas dois valores:
-  - `1` → Livro **gratuito** (preço final sempre `0.0`)
-  - `2` → Livro **pago** (preço final calculado com desconto)
-
-**Cálculo do preço final:**
-```
-preco_final = preco - (preco * desconto_percentual / 100)
-```
-
-### Leitor
-
-O `Leitor` é um **Value Object** imutável (`dataclass frozen=True`) com os campos:
-- `id` (int)
-- `nome` (str)
-- `email` (str validado via `EmailStr` do Pydantic)
-
----
-
-## ⚙️ Instalação
-
-### Pré-requisitos
-
-- Python 3.12+
-- pip
-
-### Passos
-
-**1. Clone o repositório:**
 ```bash
-git clone https://github.com/seu-usuario/Biblioteca_API.git
-cd python_aula
+git clone https://github.com/nicolas021007/biblioteca_API.git
+cd biblioteca_API
 ```
 
-**2. Crie e ative o ambiente virtual:**
+Crie e ative um ambiente virtual:
+
 ```bash
-python -m venv .venv
-
-# Linux/macOS
-source .venv/bin/activate
-
-# Windows
-.venv\Scripts\activate
+python3 -m venv venv
+source venv/bin/activate    # Linux/Mac
+venv\Scripts\activate       # Windows
 ```
 
-**3. Instale as dependências:**
+Instale as dependências:
+
 ```bash
-pip install fastapi uvicorn pydantic[email]
+pip install fastapi uvicorn "pydantic[email]"
 ```
 
-**4. Inicie o servidor:**
+## ▶️ Executando o projeto
+
 ```bash
 uvicorn main:app --reload
 ```
 
-A API estará disponível em: `http://localhost:8000`
+A API estará disponível em `http://127.0.0.1:8000`.
 
----
+A documentação interativa (Swagger UI) pode ser acessada em:
 
-## 🚀 Como Usar
+```
+http://127.0.0.1:8000/docs
+```
 
-### Documentação interativa
-
-Com o servidor rodando, acesse:
-
-- **Swagger UI:** `http://localhost:8000/docs`
-- **ReDoc:** `http://localhost:8000/redoc`
-
----
-
-## 🔗 Endpoints
-
-### Geral
-
-| Método | Rota | Descrição |
-|---|---|---|
-| `GET` | `/` | Verifica se a API está funcionando |
+## 📚 Endpoints
 
 ### Leitores
 
-| Método | Rota | Descrição |
-|---|---|---|
-| `POST` | `/leitores` | Cadastra um novo leitor |
-| `GET` | `/leitores` | Lista todos os leitores |
+| Método | Rota          | Descrição                     |
+|--------|---------------|--------------------------------|
+| POST   | `/leitores`   | Cadastra um novo leitor        |
+| GET    | `/leitores`   | Lista todos os leitores        |
 
-**Exemplo de payload — criar leitor:**
+**Exemplo de corpo (POST /leitores):**
+
 ```json
 {
-  "id": 1,
-  "nome": "João Silva",
-  "email": "joao@email.com"
+  "nome": "Maria Silva",
+  "email": "maria@email.com"
 }
 ```
 
 ### Livros
 
-| Método | Rota | Descrição |
-|---|---|---|
-| `POST` | `/livros` | Cadastra um novo livro |
-| `GET` | `/livros` | Lista todos os livros |
-| `GET` | `/livros/{codigo}` | Busca um livro pelo código |
-| `PATCH` | `/livros/{codigo}/preco` | Altera o preço de um livro |
+| Método | Rota                          | Descrição                                    |
+|--------|-------------------------------|-----------------------------------------------|
+| POST   | `/livros`                     | Cadastra um novo livro                        |
+| GET    | `/livros`                     | Lista todos os livros                          |
+| GET    | `/livros/{codigo}`            | Busca um livro pelo código (UUID)             |
+| PUT    | `/livros/{codigo}/preco`      | Atualiza o preço de um livro                  |
+| GET    | `/livros/{codigo}/preco_final`| Retorna o livro com o preço final calculado   |
 
-**Exemplo de payload — criar livro:**
+**Exemplo de corpo (POST /livros):**
+
 ```json
 {
-  "codigo": 101,
-  "titulo": "Clean Code",
-  "preco": 89.90,
+  "titulo": "Dom Casmurro",
+  "preco": 30.0,
   "tipo": 2,
   "desconto_percentual": 10
 }
 ```
 
-## 👨‍💻 Desenvolvedores
+> `tipo`: `1` = Gratuito · `2` = Pago
 
+## 📐 Regras de negócio
 
+- O **id/código** de leitores e livros é gerado automaticamente pelo sistema usando **UUID**, não sendo informado na criação.
+- O **preço** de um livro não pode ser negativo.
+- O **desconto percentual** deve estar entre `0` e `100`.
+- Um livro do tipo **Gratuito** deve obrigatoriamente ter `preco` igual a `0`. Caso contrário, a API retorna erro `400`.
+- O **preço final** de um livro gratuito é sempre `0.0`, independentemente do desconto cadastrado.
+- O preço final de um livro pago é calculado como: `preco - (preco * desconto_percentual / 100)`.
 
-Este projeto foi desenvolvido pelos alunos:
- 
-- **Nicolas R. Santos**
-- **Felipe Gonçalves**
- 
----
+## 🧪 Testando a API
+
+A forma mais simples de testar é através do Swagger UI (`/docs`), onde é possível executar cada endpoint diretamente pelo navegador através do botão **"Try it out"**.
+
+## 👤 Autores
+
+Desenvolvido por **Nicolas R. Santos** e **Felipe Figueiredo** como parte dos estudos do curso de **Análise e Desenvolvimento de Sistemas**.
