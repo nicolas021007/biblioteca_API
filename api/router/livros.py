@@ -44,6 +44,8 @@ def put_preco_livro(codigo: str, data: AlterarPrecoInput):
     if not livro:
         raise HTTPException(status_code=400, detail ="Livro não encontrado!")
     
+    return livro
+    
 @router.get("/{codigo}/preco_final", response_model = LivroComPrecoFinal)
 
 def get_preco_final(codigo: str):
